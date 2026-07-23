@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/issues")
 @RequiredArgsConstructor
-public class IssueControler {
+public class IssueController {
 
     private final IssueService issueService;
 

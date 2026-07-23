@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.grupo01.incident_manager.dtos.auth.LoginRequest;
 import com.grupo01.incident_manager.dtos.auth.RegisterRequest;
 import com.grupo01.incident_manager.dtos.auth.TokenResponse;
+import com.grupo01.incident_manager.exception.ResourceAlreadyExistsException;
+import com.grupo01.incident_manager.exception.ResourceNotFoundException;
 import com.grupo01.incident_manager.model.Role;
 import com.grupo01.incident_manager.model.User;
 import com.grupo01.incident_manager.model.UserToken;
@@ -33,11 +35,11 @@ public class AuthService {
     @SuppressWarnings("null")
     public TokenResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new RuntimeException("El correo ya esta registrado");
+            throw new ResourceAlreadyExistsException("El correo ya esta registrado");
         }
 
         Role role = roleRepository.findById(request.idRol())
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado"));
 
         // Construimos al usuario
         User user = User.builder()
@@ -67,7 +69,7 @@ public class AuthService {
                         request.password()));
 
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         revokedAllUserTokens(user);
         String jwtToken = jwtService.generateToken(user);

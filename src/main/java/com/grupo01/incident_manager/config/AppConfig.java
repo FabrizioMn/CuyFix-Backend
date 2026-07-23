@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.grupo01.incident_manager.exception.ResourceNotFoundException;
 import com.grupo01.incident_manager.model.User;
 import com.grupo01.incident_manager.repository.UserRepository;
 
@@ -24,7 +25,7 @@ public class AppConfig {
     public UserDetailsService userDetailsService() {
         return username -> {
             User user = userRepository.findByEmail(username)
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getEmail())

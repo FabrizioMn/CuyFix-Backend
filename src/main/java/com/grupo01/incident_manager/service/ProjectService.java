@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.grupo01.incident_manager.dtos.project.ProjectRequest;
 import com.grupo01.incident_manager.dtos.project.ProjectResponse;
+import com.grupo01.incident_manager.exception.ResourceAlreadyExistsException;
+import com.grupo01.incident_manager.exception.ResourceNotFoundException;
 import com.grupo01.incident_manager.model.IssueScheme;
 import com.grupo01.incident_manager.model.Project;
 import com.grupo01.incident_manager.model.User;
@@ -40,16 +42,16 @@ public class ProjectService {
 
         // Verificamos que no exista otro projecto con la misma KEY
         if (projectRepository.existsByKey(formattedKey)) {
-            throw new RuntimeException("Ya existe un proyecto con la KEY: " + formattedKey);
+            throw new ResourceAlreadyExistsException("Ya existe un proyecto con la KEY: " + formattedKey);
         }
 
         // Buscamos al usuario en la BD
         User creator = userRepository.findById(request.idUser())
-                .orElseThrow(() -> new RuntimeException("Usuario creador no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario creador no encontrado"));
 
         // Buscamos el esquema de incidencias en la BD
         IssueScheme scheme = issueSchemeRepository.findById(request.idIssueScheme())
-                .orElseThrow(() -> new RuntimeException("Esquema de incidencias no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Esquema de incidencias no encontrado"));
 
         // Contruimos el proyecto
         Project project = Project.builder()
@@ -73,7 +75,7 @@ public class ProjectService {
                 .getName();
 
         User currentUser = userRepository.findByEmail(currentEmail)
-                .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario autenticado no encontrado"));
 
         return projectRepository.findProjectsByUserId(currentUser.getId()).stream()
                 .map(this::mapToResponse)
@@ -83,7 +85,7 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public ProjectResponse getProjectById(@NonNull Long id) {
         Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
         return mapToResponse(project);
     }
 
@@ -91,7 +93,7 @@ public class ProjectService {
     public void deleteProject(@NonNull Long id) {
         // Verificamos si el proyecto existe
         if (!projectRepository.existsById(id)) {
-            throw new RuntimeException("El proyecto no existe");
+            throw new ResourceNotFoundException("El proyecto no existe");
         }
 
         historyRepository.deleteByIssue_Project_Id(id);

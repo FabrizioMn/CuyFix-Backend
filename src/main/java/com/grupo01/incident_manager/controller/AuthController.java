@@ -13,6 +13,7 @@ import com.grupo01.incident_manager.dtos.auth.LoginRequest;
 import com.grupo01.incident_manager.dtos.auth.RegisterRequest;
 import com.grupo01.incident_manager.dtos.auth.TokenResponse;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -22,13 +23,13 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<TokenResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<TokenResponse> register(@Valid @RequestBody RegisterRequest request) {
         TokenResponse token = authService.register(request);
         return ResponseEntity.ok(token);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
         TokenResponse token = authService.login(request);
         return ResponseEntity.ok(token);
     }
